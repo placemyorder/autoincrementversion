@@ -1,26 +1,37 @@
+/**
+ * Most of this code has been copied from the following GitHub Action
+ * to make it simpler or not necessary to install a lot of
+ * JavaScript packages to execute a shell script.
+ *
+ * https://github.com/ad-m/github-push-action/blob/fe38f0a751bf9149f0270cc1fe20bf9156854365/start.js
+ */
 const core = require('@actions/core');
-const { exec } = require('child_process');
+const spawn = require('child_process').spawn;
+const path = require("path");
 
-async function run() {
-  try {
-    const input1 = core.getInput('branch');
-    const input2 = core.getInput('versionfile');
+const input1 = core.getInput('branch');
+const input2 = core.getInput('versionfile');
 
-    const command = `./entrypoint.sh ${input1} ${input2}`;
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        core.setFailed(`Error executing script: ${error.message}`);
-        return;
-      }
-      if (stderr) {
-        core.setFailed(`Script stderr: ${stderr}`);
-        return;
-      }
-      console.log(`Script output: ${stdout}`);
+const exec = (cmd, args=[]) => new Promise((resolve, reject) => {
+    console.log(`Started: ${cmd} ${args.join(" ")}`)
+    const app = spawn(cmd, args, { stdio: 'inherit' });
+    app.on('close', code => {
+        if(code !== 0){
+            err = new Error(`Invalid status code: ${code}`);
+            err.code = code;
+            return reject(err);
+        };
+        return resolve(code);
     });
-  } catch (error) {
-    core.setFailed(`Action failed with error: ${error.message}`);
-  }
-}
+    app.on('error', reject);
+});
 
-run();
+const main = async () => {
+    await exec('bash', [path.join(__dirname, './entrypoint.sh')],input1,input2);
+};
+
+main().catch(err => {
+    console.error(err);
+    console.error(err.stack);
+    process.exit(err.code || -1);
+})
