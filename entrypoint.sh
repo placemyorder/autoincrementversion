@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# Function to check if required commands are available
-check_command() {
-  command -v "$1" >/dev/null 2>&1 || { echo >&2 "$1 is required but it's not installed. Aborting."; exit 1; }
-}
-
-# Check for required commands
-check_command jq
-
 # Check if correct number of arguments are passed
 if [ "$#" -ne 2 ]; then
   echo "Usage: $0 <branch> <versionFile>"
@@ -33,9 +25,12 @@ branchType=$(echo "$branchType" | tr '[:upper:]' '[:lower:]')
 case "$branchType" in
   release)
     major=$((major + 1))
+    minor=0
+    patch=0
     ;;
   feature)
     minor=$((minor + 1))
+    patch=0
     ;;
   bug|bugfix)
     patch=$((patch + 1))
