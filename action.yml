@@ -1,0 +1,12 @@
+name: 'Autoincrement Version'
+description: 'Autoincrement version based on brnch name'
+inputs:
+  branch:
+    description: 'The branch name'
+    required: true
+  versionfile:
+    description: 'Filepath of the version file'
+    required: true
+runs:
+  using: 'node20'
+  main: 'index.js'
