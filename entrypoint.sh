@@ -28,11 +28,11 @@ case "$branchType" in
     minor=0
     patch=0
     ;;
-  feature)
+  feature|feat)
     minor=$((minor + 1))
     patch=0
     ;;
-  bug|bugfix)
+  bug|bugfix|chore)
     patch=$((patch + 1))
     ;;
 esac
